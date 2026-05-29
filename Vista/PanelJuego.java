@@ -1,23 +1,30 @@
 package Vista;
 
+import Controlador.ControladorJuego;
 import Modelo.Laberinto;
+import Modelo.Pacman;
 import java.awt.*;
 import javax.swing.JPanel;
 
 public class PanelJuego extends JPanel{
 
     private Laberinto laberinto;
+    private Pacman pacman;
 
-    final int TAMANIO_CELDA = 32;
+    final int TAMANIO_CELDA = 35;
     final int COLUMNAS = 18;
     final int FILAS = 21;
 
    public PanelJuego(){
     laberinto = new Laberinto(1);
+    pacman = new Pacman (1,1);
+    addKeyListener(new ControladorJuego(null));
+    setFocusable(true);
     setBackground(Color.BLACK);
     setPreferredSize(new Dimension(new Dimension(COLUMNAS * TAMANIO_CELDA, FILAS * TAMANIO_CELDA)));
    } 
 
+   
 
 
        @Override
@@ -41,13 +48,13 @@ public class PanelJuego extends JPanel{
                 g.setColor(Color.BLACK);
                 g.fillRect(x, y, TAMANIO_CELDA, TAMANIO_CELDA);
                 g.setColor(Color.WHITE);
-                g.fillOval(x + 12, y + 12 , 8, 8); // pellet centrado
+                g.fillOval(x + 12, y + 12 , 6, 6); // pellet centrado
            
             } else if (celda == Laberinto.POWERUP) {
                 g.setColor(Color.BLACK);
                 g.fillRect(x, y, TAMANIO_CELDA, TAMANIO_CELDA);
                 g.setColor(Color.CYAN);
-                g.fillOval(x + 6, y + 6, 20, 20); // Powerup
+                g.fillOval(x + 6, y + 6, 15, 15); // Powerup
            
             } else {
                 g.setColor(Color.BLACK);

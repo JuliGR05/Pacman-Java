@@ -42,5 +42,14 @@ public class Pacman {
 
     public int getColumna() {
         return columna;
-}
+    }
+
+    public int getDireccionFila() {
+    return direccionFila;
+    }
+
+    public int getDireccionColumna() {
+    return direccionColumna;
+    }
+
 }

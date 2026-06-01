@@ -102,4 +102,8 @@ public class Laberinto {
     public int getCelda(int fila, int columna) { return mapa[fila][columna]; }
     public int getFilas() { return mapa.length; }
     public int getColumnas() { return mapa[0].length; }
+
+    public boolean esPared(int fila, int columna) {
+    return mapa[fila][columna] == PARED;
+}
 }

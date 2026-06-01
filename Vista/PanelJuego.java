@@ -4,12 +4,21 @@ import Controlador.ControladorJuego;
 import Modelo.Laberinto;
 import Modelo.Pacman;
 import java.awt.*;
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 public class PanelJuego extends JPanel{
 
     private Laberinto laberinto;
     private Pacman pacman;
+    private Image imgFantasmaNaranja;
+    private Image imgFantasmaRosado;
+    private Image imgFantasmaRojo;
+    private Image imgPacmanAbajo;
+    private Image imgPacmanArriba;
+    private Image imgPacmanIzquierda;
+    private Image imgPacmanDerecha;
+
 
     final int TAMANIO_CELDA = 35;
     final int COLUMNAS = 18;
@@ -22,7 +31,15 @@ public class PanelJuego extends JPanel{
     setFocusable(true);
     setBackground(Color.BLACK);
     setPreferredSize(new Dimension(new Dimension(COLUMNAS * TAMANIO_CELDA, FILAS * TAMANIO_CELDA)));
-   } 
+  
+    imgFantasmaNaranja = new ImageIcon("Recursos/FantasmaNaranja.png").getImage();
+    imgFantasmaRojo = new ImageIcon ("Recursos/FantasmaRojo.png").getImage();
+    imgFantasmaRosado = new ImageIcon("Recursos/FantasmaRosado.png").getImage();
+    imgPacmanAbajo = new ImageIcon("Recursos/pacmanAbajo.png").getImage();
+    imgPacmanArriba = new ImageIcon("Recursos/pacmanArriba.png").getImage();
+    imgPacmanIzquierda = new ImageIcon("Recursos/pacmanIzquierda").getImage();
+    imgPacmanDerecha = new ImageIcon("Recursos/pacmanDerecha").getImage();
+} 
 
    
 
@@ -63,5 +80,22 @@ public class PanelJuego extends JPanel{
             
         }
     }
-}
-}
+
+    //Dibujar Pacman
+    int px = pacman.getColumna() * TAMANIO_CELDA;
+    int py = pacman.getFila() * TAMANIO_CELDA;
+
+    if (pacman.getDireccionFila() == 1){
+        g.drawImage(imgPacmanAbajo, px, py, TAMANIO_CELDA, TAMANIO_CELDA, null);
+    } else if (pacman.getDireccionFila() == -1){
+        g.drawImage(imgPacmanArriba, px, py, TAMANIO_CELDA, TAMANIO_CELDA, null);
+    } else if (pacman.getDireccionColumna() == 1){
+        g.drawImage(imgPacmanDerecha, px, py, TAMANIO_CELDA, TAMANIO_CELDA, null);
+    } else if (pacman.getDireccionColumna() == -1) {
+        g.drawImage(imgPacmanIzquierda, px, py, TAMANIO_CELDA, TAMANIO_CELDA, null);
+    } else {
+        g.drawImage(imgPacmanDerecha, px, py, TAMANIO_CELDA, TAMANIO_CELDA, null); //posición por defecto
+    }
+    }
+    }
+

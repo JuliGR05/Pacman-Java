@@ -9,11 +9,15 @@ public class Pacman {
     private int direccionColumna;
 
     private int vidas;
+    private int filaInicial;
+    private int columnaInicial;
 
     public Pacman (int filaInicial, int columnaInicial){
         this.fila = filaInicial;
         this.columna = columnaInicial;
         this.vidas = 3;
+        this.filaInicial = filaInicial;
+        this.columnaInicial = columnaInicial;
 
         direccionFila = 0;
         direccionColumna = 0;
@@ -52,4 +56,19 @@ public class Pacman {
     return direccionColumna;
     }
 
+public void perderVida() {
+    vidas--;
+}
+
+public int getVidas() {
+    return vidas;
+}
+
+public void reiniciarPosicion() {
+    fila = filaInicial;
+    columna = columnaInicial;
+
+    direccionFila = 0;
+    direccionColumna = 0;
+}
 }

@@ -1,4 +1,4 @@
-javapackage Modelo;
+package Modelo;
 
 public class ScoreModel {
     private int puntos;

@@ -21,7 +21,7 @@ public abstract class Fantasma implements Runnable {
     public abstract void mover(); //fantasmas se mueven diferente
 
     @Override
-    publuc void run(){
+    public void run(){
         while (vivo) {
             mover();
             try {

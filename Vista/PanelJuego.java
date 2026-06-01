@@ -1,6 +1,9 @@
 package Vista;
 
 import Controlador.ControladorJuego;
+import Modelo.FantasmaNaranja;
+import Modelo.FantasmaRojo;
+import Modelo.FantasmaRosado;
 import Modelo.Laberinto;
 import Modelo.Pacman;
 import java.awt.*;
@@ -18,6 +21,9 @@ public class PanelJuego extends JPanel{
     private Image imgPacmanArriba;
     private Image imgPacmanIzquierda;
     private Image imgPacmanDerecha;
+    private FantasmaRojo fantasmaRojo;
+    private FantasmaNaranja fantasmaNaranja;
+    private FantasmaRosado fantasmaRosado;  
 
 
     final int TAMANIO_CELDA = 35;
@@ -27,6 +33,16 @@ public class PanelJuego extends JPanel{
    public PanelJuego(){
     laberinto = new Laberinto(1);
     pacman = new Pacman (1,1);
+    fantasmaRojo = new FantasmaRojo(10, 8, laberinto);
+    fantasmaNaranja = new FantasmaNaranja(10, 9, laberinto);
+    fantasmaRosado = new FantasmaRosado(10, 10, laberinto);
+    Thread hiloRojo = new Thread(fantasmaRojo);
+    Thread hiloNaranja = new Thread(fantasmaNaranja);
+    Thread hiloRosado = new Thread(fantasmaRosado);
+
+    hiloRojo.start();
+    hiloNaranja.start();
+    hiloRosado.start();
     addKeyListener(new ControladorJuego(null));
     setFocusable(true);
     setBackground(Color.BLACK);
@@ -41,9 +57,41 @@ public class PanelJuego extends JPanel{
     imgPacmanDerecha = new ImageIcon("Recursos/pacmanDerecha").getImage();
 } 
 
-   
+   private void verificarColisiones() {
 
+    if (pacman.getFila() == fantasmaRojo.getFila()
+            && pacman.getColumna() == fantasmaRojo.getColumna()) {
 
+        pacman.perderVida();
+        pacman.reiniciarPosicion();
+
+        if (pacman.getVidas() <= 0) {
+            System.out.println("Game Over");
+        }
+    }
+
+    if (pacman.getFila() == fantasmaNaranja.getFila()
+            && pacman.getColumna() == fantasmaNaranja.getColumna()) {
+
+        pacman.perderVida();
+        pacman.reiniciarPosicion();
+
+        if (pacman.getVidas() <= 0) {
+            System.out.println("Game Over");
+        }
+    }
+
+    if (pacman.getFila() == fantasmaRosado.getFila()
+            && pacman.getColumna() == fantasmaRosado.getColumna()) {
+
+        pacman.perderVida();
+        pacman.reiniciarPosicion();
+
+        if (pacman.getVidas() <= 0) {
+            System.out.println("Game Over");
+        }
+    }
+}
        @Override
     protected  void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -79,7 +127,8 @@ public class PanelJuego extends JPanel{
             }
             
         }
-    }
+        
+        }
 
     //Dibujar Pacman
     int px = pacman.getColumna() * TAMANIO_CELDA;
@@ -96,6 +145,40 @@ public class PanelJuego extends JPanel{
     } else {
         g.drawImage(imgPacmanDerecha, px, py, TAMANIO_CELDA, TAMANIO_CELDA, null); //posición por defecto
     }
-    }
-    }
+    int fxRojo = fantasmaRojo.getColumna() * TAMANIO_CELDA;
+    int fyRojo = fantasmaRojo.getFila() * TAMANIO_CELDA;
 
+    g.drawImage(
+    imgFantasmaRojo,
+    fxRojo,
+    fyRojo,
+    TAMANIO_CELDA,
+    TAMANIO_CELDA,
+    null
+    );
+
+    int fxNaranja = fantasmaNaranja.getColumna() * TAMANIO_CELDA;
+    int fyNaranja = fantasmaNaranja.getFila() * TAMANIO_CELDA;
+
+    g.drawImage(
+    imgFantasmaNaranja,
+    fxNaranja,
+    fyNaranja,
+    TAMANIO_CELDA,
+    TAMANIO_CELDA,
+    null
+    );
+
+    int fxRosado = fantasmaRosado.getColumna() * TAMANIO_CELDA;
+    int fyRosado = fantasmaRosado.getFila() * TAMANIO_CELDA;
+
+    g.drawImage(
+    imgFantasmaRosado,
+    fxRosado,
+    fyRosado,
+    TAMANIO_CELDA,
+    TAMANIO_CELDA,
+    null
+    );
+    }
+    }

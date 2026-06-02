@@ -106,4 +106,19 @@ public class Laberinto {
     public boolean esPared(int fila, int columna) {
     return mapa[fila][columna] == PARED;
 }
+    public void setCelda(int fila, int columna, int valor) {
+    mapa[fila][columna] = valor;
+}
+
+    public int contarPellets() {
+        int contador = 0;
+        for (int i = 0; i < mapa.length; i++) {
+            for (int j = 0; j < mapa[0].length; j++) {
+                if (mapa[i][j] == PELLET) {
+                    contador++;
+                }
+            }
+        }
+        return contador;
+    }
 }

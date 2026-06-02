@@ -25,7 +25,7 @@ public abstract class Fantasma implements Runnable {
         while (vivo) {
             mover();
             try {
-                Thread.sleep(300); //velocidad cada fantasma
+                Thread.sleep(150); //velocidad cada fantasma
             } catch (InterruptedException e){
                 Thread.currentThread().interrupt();
             }

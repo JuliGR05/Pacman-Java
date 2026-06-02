@@ -30,6 +30,12 @@ public class Pacman {
         if (!laberinto.esPared(nuevaFila,nuevaColumna)){
             fila = nuevaFila;
             columna = nuevaColumna;
+
+            //cuando hay pellet o powerup se lo come
+            int celda = laberinto.getCelda(fila, columna);
+            if (celda == Laberinto.PELLET ){
+                laberinto.setCelda(fila,columna,Laberinto.VACIO);
+            }
         }
     }
 

@@ -26,7 +26,9 @@ public class PanelJuego extends JPanel{
     private FantasmaRojo fantasmaRojo;
     private FantasmaNaranja fantasmaNaranja;
     private FantasmaRosado fantasmaRosado;
+    private Image imgFantasmaVulnerable;
     
+    private int nivelActual = 1;
     private EstadoJuego estado;
     private Timer gameLoop;
 
@@ -41,7 +43,7 @@ public class PanelJuego extends JPanel{
         
     laberinto = new Laberinto(1);
     pacman = new Pacman (1,1);
-    fantasmaRojo = new FantasmaRojo(1, 2, laberinto);
+    fantasmaRojo = new FantasmaRojo(19, 9, laberinto, pacman);
     fantasmaNaranja = new FantasmaNaranja(1, 8, laberinto);
     fantasmaRosado = new FantasmaRosado(1, 14, laberinto);
     Thread hiloRojo = new Thread(fantasmaRojo);
@@ -63,10 +65,19 @@ public class PanelJuego extends JPanel{
     imgPacmanArriba = new ImageIcon("Recursos/pacmanArriba.png").getImage();
     imgPacmanIzquierda = new ImageIcon("Recursos/pacmanIzquierda.png").getImage();
     imgPacmanDerecha = new ImageIcon("Recursos/pacmanDerecha.png").getImage();
+    imgFantasmaVulnerable = new ImageIcon("Recursos/fantasmaVulnerable.png").getImage();
+
 
     gameLoop = new Timer(200, e ->{
         if (estado == EstadoJuego.JUGANDO){
+            int celdaAntes = laberinto.getCelda(pacman.getFila(), pacman.getColumna());
             pacman.mover(laberinto);
+            int celdaNueva = laberinto.getCelda(pacman.getFila(), pacman.getColumna());
+            
+            if (celdaNueva == Laberinto.POWERUP){
+            laberinto.setCelda(pacman.getFila(), pacman.getColumna(), Laberinto.VACIO);
+            activarPowerUp();
+        }
             verificarColisiones();
             if (laberinto.contarPellets() == 0) {
                 subirNivel();
@@ -76,7 +87,22 @@ public class PanelJuego extends JPanel{
     });
     gameLoop.start();
     requestFocusInWindow();
-} 
+}
+
+    public void activarPowerUp() {
+        fantasmaRojo.setVulnerable(true);
+        fantasmaNaranja.setVulnerable(true);
+        fantasmaRosado.setVulnerable(true);
+
+        // después de 5 segundos vuelven a normal
+        Timer timerPowerUp = new Timer (5000, e -> {
+            fantasmaRojo.setVulnerable(false);
+            fantasmaNaranja.setVulnerable(false);
+            fantasmaRosado.setVulnerable(false);
+        });
+        timerPowerUp.setRepeats(false);
+        timerPowerUp.start();
+    }
 
 //Getter y setter del estado del juego
     public EstadoJuego getEstado (){
@@ -89,51 +115,92 @@ public class PanelJuego extends JPanel{
     }
 
     public void reiniciar() {
+    
+    // detener fantasmas antes del Game Over
+    fantasmaRojo.detener();
+    fantasmaNaranja.detener();
+    fantasmaRosado.detener();
+
+    // crear todo de nuevo
     laberinto = new Laberinto(1);
     pacman = new Pacman(1, 1);
+    nivelActual = 1;
+
+    fantasmaRojo = new FantasmaRojo(19, 9, laberinto, pacman);
+    fantasmaNaranja = new FantasmaNaranja(1, 8, laberinto);
+    fantasmaRosado = new FantasmaRosado(1, 14, laberinto);
+
+    Thread hiloRojo = new Thread(fantasmaRojo);
+    Thread hiloNaranja = new Thread(fantasmaNaranja);
+    Thread hiloRosado = new Thread(fantasmaRosado);
+
+    hiloRojo.start();
+    hiloNaranja.start();
+    hiloRosado.start();
+
+    removeKeyListener(getKeyListeners()[0]);
+    addKeyListener(new ControladorJuego(pacman, this));
+
     estado = EstadoJuego.INICIO;
+    gameLoop.start(); // reiniciar el gameLoop
     repaint();
     }
 
-    private int nivelActual = 1;
-
     public void subirNivel() {
-        nivelActual++;
-        if (nivelActual > 3) {
-            estado = EstadoJuego.VICTORIA;
-        } else {
-            laberinto = new Laberinto(nivelActual);
-            pacman = new Pacman(1, 1);
-            repaint();
-        }
+    nivelActual++;
+    if (nivelActual > 3) {
+        estado = EstadoJuego.VICTORIA;
+    } else {
+        laberinto = new Laberinto(nivelActual);
+        pacman = new Pacman(1, 1);
+        repaint();
+    }
+}
+
+
+    private boolean hayColision(int filaPac, int colPac, int filaFantasma, int colFantasma) {
+        return Math.abs(filaPac - filaFantasma) <= 1 
+            && Math.abs(colPac - colFantasma) <= 1;
     }
 
    private void verificarColisiones() {
-    if (pacman.getFila() == fantasmaRojo.getFila()
-            && pacman.getColumna() == fantasmaRojo.getColumna()) {
-        pacman.perderVida();
-        pacman.reiniciarPosicion();
-    }
-
-    if (pacman.getFila() == fantasmaNaranja.getFila()
-            && pacman.getColumna() == fantasmaNaranja.getColumna()) {
-        pacman.perderVida();
-        pacman.reiniciarPosicion();
-    }
-
-    if (pacman.getFila() == fantasmaRosado.getFila()
-            && pacman.getColumna() == fantasmaRosado.getColumna()) {
-        pacman.perderVida();
-        pacman.reiniciarPosicion();
-    }
-
-    // revisar vidas
-    if (pacman.getVidas() <= 0) {
-        estado = EstadoJuego.GAME_OVER;
-        gameLoop.stop(); // detener el juego
     
+    if (hayColision(pacman.getFila(), pacman.getColumna(), fantasmaRojo.getFila(), fantasmaRojo.getColumna())) {
+    if (fantasmaRojo.isVulnerable()) {
+        fantasmaRojo.setVulnerable(false);
+        fantasmaRojo.reiniciarPosicion();
+    } else {
+        pacman.perderVida();
+        pacman.reiniciarPosicion();
     }
 }
+
+    if (hayColision(pacman.getFila(), pacman.getColumna(), fantasmaNaranja.getFila(), fantasmaNaranja.getColumna())) {
+        if (fantasmaNaranja.isVulnerable()) {
+            fantasmaNaranja.setVulnerable(false);
+            fantasmaNaranja.reiniciarPosicion();
+        } else {
+            pacman.perderVida();
+            pacman.reiniciarPosicion();
+        }
+    }
+
+    if (hayColision(pacman.getFila(), pacman.getColumna(), fantasmaRosado.getFila(), fantasmaRosado.getColumna())) {
+        if (fantasmaRosado.isVulnerable()) {
+            fantasmaRosado.setVulnerable(false);
+            fantasmaRosado.reiniciarPosicion();
+        } else {
+            pacman.perderVida();
+            pacman.reiniciarPosicion();
+        }
+    }
+
+        if (pacman.getVidas() <= 0) {
+        estado = EstadoJuego.GAME_OVER;
+        gameLoop.stop();
+    }
+}
+
 
 @Override
 protected void paintComponent(Graphics g) {
@@ -207,11 +274,26 @@ protected void paintComponent(Graphics g) {
         }
 
         // Dibujar fantasmas
-        g.drawImage(imgFantasmaRojo, fantasmaRojo.getColumna() * TAMANIO_CELDA, fantasmaRojo.getFila() * TAMANIO_CELDA, TAMANIO_CELDA, TAMANIO_CELDA, null);
-        g.drawImage(imgFantasmaNaranja, fantasmaNaranja.getColumna() * TAMANIO_CELDA, fantasmaNaranja.getFila() * TAMANIO_CELDA, TAMANIO_CELDA, TAMANIO_CELDA, null);
-        g.drawImage(imgFantasmaRosado, fantasmaRosado.getColumna() * TAMANIO_CELDA, fantasmaRosado.getFila() * TAMANIO_CELDA, TAMANIO_CELDA, TAMANIO_CELDA, null);
+        // Fantasma Rojo
+        if (fantasmaRojo.isVulnerable()) {
+            g.drawImage(imgFantasmaVulnerable, fantasmaRojo.getColumna() * TAMANIO_CELDA, fantasmaRojo.getFila() * TAMANIO_CELDA, TAMANIO_CELDA, TAMANIO_CELDA, null);
+        } else {
+            g.drawImage(imgFantasmaRojo, fantasmaRojo.getColumna() * TAMANIO_CELDA, fantasmaRojo.getFila() * TAMANIO_CELDA, TAMANIO_CELDA, TAMANIO_CELDA, null);
+        }
 
-        verificarColisiones();
+        // Fantasma Naranja
+        if (fantasmaNaranja.isVulnerable()) {
+            g.drawImage(imgFantasmaVulnerable, fantasmaNaranja.getColumna() * TAMANIO_CELDA, fantasmaNaranja.getFila() * TAMANIO_CELDA, TAMANIO_CELDA, TAMANIO_CELDA, null);
+        } else {
+            g.drawImage(imgFantasmaNaranja, fantasmaNaranja.getColumna() * TAMANIO_CELDA, fantasmaNaranja.getFila() * TAMANIO_CELDA, TAMANIO_CELDA, TAMANIO_CELDA, null);
+        }
+
+        // Fantasma Rosado
+        if (fantasmaRosado.isVulnerable()) {
+            g.drawImage(imgFantasmaVulnerable, fantasmaRosado.getColumna() * TAMANIO_CELDA, fantasmaRosado.getFila() * TAMANIO_CELDA, TAMANIO_CELDA, TAMANIO_CELDA, null);
+        } else {
+            g.drawImage(imgFantasmaRosado, fantasmaRosado.getColumna() * TAMANIO_CELDA, fantasmaRosado.getFila() * TAMANIO_CELDA, TAMANIO_CELDA, TAMANIO_CELDA, null);
+        }
 
     } else if (estado == EstadoJuego.PAUSA) {
         g.setColor(Color.YELLOW);

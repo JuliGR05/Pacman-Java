@@ -33,7 +33,7 @@ public class Pacman {
 
             //cuando hay pellet o powerup se lo come
             int celda = laberinto.getCelda(fila, columna);
-            if (celda == Laberinto.PELLET || celda == Laberinto.POWERUP){
+            if (celda == Laberinto.PELLET ){
                 laberinto.setCelda(fila,columna,Laberinto.VACIO);
             }
         }

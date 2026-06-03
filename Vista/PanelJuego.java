@@ -7,6 +7,7 @@ import Modelo.FantasmaRojo;
 import Modelo.FantasmaRosado;
 import Modelo.Laberinto;
 import Modelo.Pacman;
+import Modelo.ScoreModel;
 import java.awt.*;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
@@ -31,6 +32,7 @@ public class PanelJuego extends JPanel{
     private int nivelActual = 1;
     private EstadoJuego estado;
     private Timer gameLoop;
+    private ScoreModel scoreModel;
 
     final int TAMANIO_CELDA = 35;
     final int COLUMNAS = 18;
@@ -40,6 +42,7 @@ public class PanelJuego extends JPanel{
     public PanelJuego(){ 
 
     estado = EstadoJuego.INICIO; //Inicializar estado de juego    
+    scoreModel = new ScoreModel(); //Inicializar el contador de puntaje
         
     laberinto = new Laberinto(1);
     pacman = new Pacman (1,1);
@@ -71,7 +74,7 @@ public class PanelJuego extends JPanel{
     gameLoop = new Timer(200, e ->{
         if (estado == EstadoJuego.JUGANDO){
             int celdaAntes = laberinto.getCelda(pacman.getFila(), pacman.getColumna());
-            pacman.mover(laberinto);
+            pacman.mover(laberinto, scoreModel);
             int celdaNueva = laberinto.getCelda(pacman.getFila(), pacman.getColumna());
             
             if (celdaNueva == Laberinto.POWERUP){
@@ -294,6 +297,10 @@ protected void paintComponent(Graphics g) {
         } else {
             g.drawImage(imgFantasmaRosado, fantasmaRosado.getColumna() * TAMANIO_CELDA, fantasmaRosado.getFila() * TAMANIO_CELDA, TAMANIO_CELDA, TAMANIO_CELDA, null);
         }
+
+        g.setColor(Color.WHITE);
+        g.setFont(new Font ("Courier New", Font.BOLD, 16));
+        g.drawString("PUNTOS: " + scoreModel.getPuntos(), 10, FILAS * TAMANIO_CELDA -5);
 
     } else if (estado == EstadoJuego.PAUSA) {
         g.setColor(Color.YELLOW);

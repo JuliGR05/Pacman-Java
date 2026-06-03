@@ -23,7 +23,7 @@ public class Pacman {
         direccionColumna = 0;
     }
 
-    public void mover (Laberinto laberinto){
+    public void mover (Laberinto laberinto, ScoreModel score){
         int nuevaFila = fila + direccionFila;
         int nuevaColumna = columna + direccionColumna;
 
@@ -35,6 +35,7 @@ public class Pacman {
             int celda = laberinto.getCelda(fila, columna);
             if (celda == Laberinto.PELLET ){
                 laberinto.setCelda(fila,columna,Laberinto.VACIO);
+                score.sumarPuntos(10); //10 puntos por cada pellet
             }
         }
     }

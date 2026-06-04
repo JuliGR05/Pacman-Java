@@ -298,10 +298,21 @@ protected void paintComponent(Graphics g) {
             g.drawImage(imgFantasmaRosado, fantasmaRosado.getColumna() * TAMANIO_CELDA, fantasmaRosado.getFila() * TAMANIO_CELDA, TAMANIO_CELDA, TAMANIO_CELDA, null);
         }
 
+        //Mostrar puntaje 
         g.setColor(Color.WHITE);
         g.setFont(new Font ("Courier New", Font.BOLD, 16));
         g.drawString("PUNTOS: " + scoreModel.getPuntos(), 10, FILAS * TAMANIO_CELDA -5);
 
+        for (int i = 0; i < pacman.getVidas(); i++) {
+        g.drawImage(
+            imgPacmanDerecha,
+            10 + i * 35,
+            5,
+            30,
+            30,
+            null
+        );
+}
     } else if (estado == EstadoJuego.PAUSA) {
         g.setColor(Color.YELLOW);
         g.setFont(new Font("Arial", Font.BOLD, 36));

@@ -1,28 +1,21 @@
 package Modelo;
 
-public class Pacman {
-  
-    private int fila;
-    private int columna;
-
-    private int direccionFila;
-    private int direccionColumna;
-
+public class Pacman extends Personaje implements Runnable {
+    
+    private Laberinto laberinto;
+    private ScoreModel scoreModel;
     private int vidas;
-    private int filaInicial;
-    private int columnaInicial;
+    private boolean vivo = true;
+    private boolean invulnerable = false;
+    private long tiempoFinInvulnerable = 0;
 
+    //Constructor 
     public Pacman (int filaInicial, int columnaInicial){
-        this.fila = filaInicial;
-        this.columna = columnaInicial;
-        this.vidas = 3;
-        this.filaInicial = filaInicial;
-        this.columnaInicial = columnaInicial;
-
-        direccionFila = 0;
-        direccionColumna = 0;
+        super(filaInicial, columnaInicial);
+        vidas = 3;
     }
 
+    //Métodos 
     public void mover (Laberinto laberinto, ScoreModel score){
         int nuevaFila = fila + direccionFila;
         int nuevaColumna = columna + direccionColumna;
@@ -36,6 +29,12 @@ public class Pacman {
             if (celda == Laberinto.PELLET ){
                 laberinto.setCelda(fila,columna,Laberinto.VACIO);
                 score.sumarPuntos(10); //10 puntos por cada pellet
+            } else if (celda == Laberinto.CEREZA){
+                laberinto.setCelda(fila, columna, Laberinto.VACIO);
+                score.sumarPuntos(100);
+            } else if (celda == Laberinto.NARANJA){
+                laberinto.setCelda(fila, columna, Laberinto.VACIO);
+                score.sumarPuntos(120);
             }
         }
     }
@@ -44,6 +43,21 @@ public class Pacman {
     direccionFila = fila;
     direccionColumna = columna;
 }
+
+    public void setContexto(Laberinto laberinto, ScoreModel scoreModel) {
+        this.laberinto = laberinto;
+        this.scoreModel = scoreModel;
+    }
+
+    public boolean isInvulnerable() {
+    return invulnerable;
+    }
+
+    public void activarInvulnerabilidad() {
+        invulnerable = true;
+        tiempoFinInvulnerable =
+                System.currentTimeMillis() + 2500;
+    }
 
 // Getters
 
@@ -78,4 +92,30 @@ public void reiniciarPosicion() {
     direccionFila = 0;
     direccionColumna = 0;
 }
+
+    @Override
+    public void run() {
+
+        while (vivo) {
+
+            if (laberinto != null && scoreModel != null) {
+                mover(laberinto, scoreModel);
+            }
+
+            try {
+                Thread.sleep(210);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        if (invulnerable && System.currentTimeMillis() > tiempoFinInvulnerable){
+            invulnerable = false;
+            }
+        }
+    }
+
+    public void detener() {
+    vivo = false;
+}
+
 }

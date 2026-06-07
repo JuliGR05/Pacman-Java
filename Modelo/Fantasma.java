@@ -1,41 +1,46 @@
 package Modelo;
+import java.util.Random;
 
-public abstract class Fantasma implements Runnable {
+public abstract class Fantasma extends Personaje implements Runnable {
 
-    protected int fila;
-    protected int columna;
-    protected int direccionFila;
-    protected int direccionColumna;
     protected Laberinto laberinto;
     protected boolean vivo;
-    protected int filaInicial;
-    protected int columnaInicial;
 
+    //Constructor
     public Fantasma (int filaInicial, int columnaInicial, Laberinto laberinto){
-        this.fila = filaInicial;
-        this.columna = columnaInicial;
+        super(filaInicial, columnaInicial);
         this.laberinto = laberinto;
-        this.filaInicial = filaInicial;
-        this.columnaInicial = columnaInicial;
         this.vivo = true;
-        this.direccionFila = 0;
-        this.direccionColumna = 1;
+        direccionFila = 0;
+        direccionColumna = 1;
     }
 
     public abstract void mover(); //se mueven los fantasmas
-        
-       public void reiniciarPosicion(){
-        fila = filaInicial;
-        columna = columnaInicial;
-       }
-    
+
+    //Para que los fantasmas reaparezcan aleatoriamente después de mor
+    public void respawnAleatorio(Pacman pacman) {
+    Random random = new Random();
+    int nuevaFila;
+    int nuevaColumna;
+
+    do {
+        nuevaFila = random.nextInt(21);
+        nuevaColumna = random.nextInt(18);
+    } while (laberinto.esPared(nuevaFila, nuevaColumna)
+    || Math.abs (nuevaFila - pacman.getFila()) < 3
+    && Math.abs(nuevaColumna - pacman.getColumna()) < 3);
+
+    fila = nuevaFila;
+    columna = nuevaColumna;
+    }
+
 
     @Override
     public void run(){
         while (vivo) {
             mover();
             try {
-                Thread.sleep(150); //velocidad cada fantasma
+                Thread.sleep(250); //velocidad cada fantasma
             } catch (InterruptedException e){
                 Thread.currentThread().interrupt();
             }

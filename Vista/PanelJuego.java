@@ -102,7 +102,7 @@ public class PanelJuego extends JPanel {
         btnSalir.setVisible(false);
         requestFocusInWindow();
     });
-    
+
     btnSalir = new JButton("SALIR");
     btnSalir.setBounds(180, 380, 270, 45);
     btnSalir.setBackground(new Color(220, 50, 50));
@@ -121,35 +121,22 @@ public class PanelJuego extends JPanel {
     private void configurarBotonesNivel() {
 
     btnContinuarNivel = new JButton("CONTINUAR");
-    btnContinuarNivel.setBounds(180, 320, 270, 45);
-    btnContinuarNivel.setBackground(new Color(255, 200, 0));
-    btnContinuarNivel.setForeground(Color.BLACK);
-    btnContinuarNivel.setFont(new Font("Courier New", Font.BOLD, 16));
-    btnContinuarNivel.setFocusPainted(false);
+    btnContinuarNivel.setBounds(180, 320, 250, 45);
 
     btnContinuarNivel.addActionListener(e -> {
         modelo.cargarSiguienteNivel();
-        btnContinuarNivel.setVisible(false);
-        btnSalirNivel.setVisible(false);
         requestFocusInWindow();
     });
 
+    add(btnContinuarNivel);
     btnSalirNivel = new JButton("SALIR");
-    btnSalirNivel.setBounds(180, 380, 270, 45);
-    btnSalirNivel.setBackground(new Color(220, 50, 50));
-    btnSalirNivel.setForeground(Color.WHITE);
-    btnSalirNivel.setFont(new Font("Courier New", Font.BOLD, 16));
-    btnSalirNivel.setFocusPainted(false);
-
+    btnSalirNivel.setBounds(180, 390, 250, 45);
     btnSalirNivel.addActionListener(e -> {
         System.exit(0);
     });
-
+    add(btnSalirNivel);
     btnContinuarNivel.setVisible(false);
     btnSalirNivel.setVisible(false);
-
-    add(btnContinuarNivel);
-    add(btnSalirNivel);
 }
 
     private void configurarBotonesGameOver() {

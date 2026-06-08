@@ -35,16 +35,21 @@ public abstract class Fantasma extends Personaje implements Runnable {
     }
 
 
+    protected long velocidad = 250; //valor por defecto de la velocidad
     @Override
     public void run(){
         while (vivo) {
             mover();
             try {
-                Thread.sleep(250); //velocidad cada fantasma
+                Thread.sleep(velocidad); //velocidad cada fantasma
             } catch (InterruptedException e){
                 Thread.currentThread().interrupt();
             }
         }
+    }
+
+    public void setVelocidad(long velocidad){
+        this.velocidad = velocidad;
     }
 
     public synchronized  int getFila() {return fila;}

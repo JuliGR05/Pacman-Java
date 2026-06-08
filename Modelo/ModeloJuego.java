@@ -15,6 +15,7 @@ public class ModeloJuego {
     private Thread hiloNaranja;
     private Thread hiloRosado;
     private Thread hiloPacman;
+    private Thread hiloPowerUp;
 
     //Constructor
     public ModeloJuego() {
@@ -26,7 +27,7 @@ public class ModeloJuego {
     private void inicializarNivel(int nivel) {
         laberinto = new Laberinto(nivel);
         pacman = new Pacman(1, 1);
-        pacman.setContexto(laberinto, scoreModel);
+        pacman.setContexto(laberinto, scoreModel, this);
 
         fantasmaRojo = new FantasmaRojo(19, 9, laberinto, pacman);
         fantasmaNaranja = new FantasmaNaranja(1, 8, laberinto);
@@ -41,6 +42,26 @@ public class ModeloJuego {
         hiloNaranja.start();
         hiloRosado.start();
         hiloPacman.start();
+
+        //velocidad aumenta por nivel 
+        long velocidadFantasmas;
+        long velocidadPacman;
+
+        if (nivel == 1) {
+            velocidadFantasmas = 250;
+            velocidadPacman = 210;
+        } else if (nivel == 2){
+            velocidadFantasmas = 180;
+            velocidadPacman = 160;
+        } else {
+            velocidadFantasmas = 120;
+            velocidadPacman = 110;
+        }
+
+        fantasmaRojo.setVelocidad(velocidadFantasmas);
+        fantasmaNaranja.setVelocidad(velocidadFantasmas);
+        fantasmaRosado.setVelocidad(velocidadFantasmas);
+        pacman.setVelocidad(velocidadPacman);
     }
 
     //Métodos 
@@ -60,12 +81,17 @@ public class ModeloJuego {
         }
     }
 
-    private void activarPowerUp() { //fantasmas se vuelven vulnerables 
+    private void activarPowerUp() { //fantasmas se vuelven vulnerables
+        
+        if (hiloPowerUp != null && hiloPowerUp.isAlive()){
+            hiloPowerUp.interrupt();
+        }
+
         fantasmaRojo.setVulnerable(true);
         fantasmaNaranja.setVulnerable(true);
         fantasmaRosado.setVulnerable(true);
 
-        new Thread(() -> {
+        hiloPowerUp = new Thread(() -> {
             try {
             Thread.sleep (8000); //8 segundos que dura la vulnerabilidad   
             } catch (InterruptedException e) {
@@ -74,7 +100,8 @@ public class ModeloJuego {
         fantasmaRojo.setVulnerable(false);
         fantasmaNaranja.setVulnerable(false);
         fantasmaRosado.setVulnerable(false);
-        }).start();
+        });
+        hiloPowerUp.start();
     }
 
     private void verificarColisiones() {
@@ -86,6 +113,12 @@ public class ModeloJuego {
         PersistenciaPuntajes.guardarPuntaje(scoreModel.getPuntos()); 
         estado = EstadoJuego.GAME_OVER;
         }
+    }
+
+    public void verificarColisionEnMovimiento(int filaPacman, int columnaPacman) {
+    verificarColisionFantasma(fantasmaRojo);
+    verificarColisionFantasma(fantasmaNaranja);
+    verificarColisionFantasma(fantasmaRosado);
     }
 
     private void verificarColisionFantasma(Fantasma fantasma) {
@@ -103,6 +136,12 @@ public class ModeloJuego {
                 pacman.activarInvulnerabilidad();
             }
         }
+    }
+
+    public boolean hayFantasmaEn(int fila, int columna) { //para momento exacto en que hay colisión
+    return (fantasmaRojo.getFila() == fila && fantasmaRojo.getColumna() == columna)
+        || (fantasmaNaranja.getFila() == fila && fantasmaNaranja.getColumna() == columna)
+        || (fantasmaRosado.getFila() == fila && fantasmaRosado.getColumna() == columna);
     }
 
     private void subirNivel() {

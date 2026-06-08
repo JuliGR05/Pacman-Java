@@ -8,6 +8,7 @@ public class Pacman extends Personaje implements Runnable {
     private volatile boolean vivo = true;
     private volatile boolean invulnerable = false;
     private volatile long tiempoFinInvulnerable = 0;
+    private ModeloJuego modelo;
 
     //Constructor 
     public Pacman (int filaInicial, int columnaInicial){
@@ -21,9 +22,10 @@ public class Pacman extends Personaje implements Runnable {
     direccionColumna = columna;
 }
 
-    public void setContexto(Laberinto laberinto, ScoreModel scoreModel) {
+    public void setContexto(Laberinto laberinto, ScoreModel scoreModel, ModeloJuego modelo) {
         this.laberinto = laberinto;
         this.scoreModel = scoreModel;
+        this.modelo = modelo;
     }
 
     public boolean isInvulnerable() {
@@ -80,7 +82,7 @@ public synchronized void reiniciarPosicion() {
                 columna = nuevaColumna;
 
                 int celda = laberinto.getCelda(fila, columna);
-            if (celda == Laberinto.PELLET){
+                if (celda == Laberinto.PELLET){
                     laberinto.setCelda(fila, columna, Laberinto.VACIO);
                     scoreModel.sumarPuntos(10);
             } else if (celda == Laberinto.CEREZA) {
@@ -94,6 +96,11 @@ public synchronized void reiniciarPosicion() {
         }
     }
 
+    private volatile long velocidad = 210; //valor por defecto de la velocidad
+    public void setVelocidad(long velocidad){
+        this.velocidad= velocidad;
+    }
+
     @Override
     public void run() {
 
@@ -101,10 +108,13 @@ public synchronized void reiniciarPosicion() {
 
             if (laberinto != null && scoreModel != null) {
                 mover();
+                if (modelo != null){
+                    modelo.verificarColisionEnMovimiento(fila, columna);
+                }
             }
 
             try {
-                Thread.sleep(210);
+                Thread.sleep(velocidad);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;

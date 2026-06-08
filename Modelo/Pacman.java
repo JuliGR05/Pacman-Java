@@ -5,9 +5,9 @@ public class Pacman extends Personaje implements Runnable {
     private Laberinto laberinto;
     private ScoreModel scoreModel;
     private int vidas;
-    private boolean vivo = true;
-    private boolean invulnerable = false;
-    private long tiempoFinInvulnerable = 0;
+    private volatile boolean vivo = true;
+    private volatile boolean invulnerable = false;
+    private volatile long tiempoFinInvulnerable = 0;
 
     //Constructor 
     public Pacman (int filaInicial, int columnaInicial){
@@ -16,30 +16,7 @@ public class Pacman extends Personaje implements Runnable {
     }
 
     //Métodos 
-    public void mover (Laberinto laberinto, ScoreModel score){
-        int nuevaFila = fila + direccionFila;
-        int nuevaColumna = columna + direccionColumna;
-
-        if (!laberinto.esPared(nuevaFila,nuevaColumna)){
-            fila = nuevaFila;
-            columna = nuevaColumna;
-
-            //cuando hay pellet o powerup se lo come
-            int celda = laberinto.getCelda(fila, columna);
-            if (celda == Laberinto.PELLET ){
-                laberinto.setCelda(fila,columna,Laberinto.VACIO);
-                score.sumarPuntos(10); //10 puntos por cada pellet
-            } else if (celda == Laberinto.CEREZA){
-                laberinto.setCelda(fila, columna, Laberinto.VACIO);
-                score.sumarPuntos(100);
-            } else if (celda == Laberinto.NARANJA){
-                laberinto.setCelda(fila, columna, Laberinto.VACIO);
-                score.sumarPuntos(120);
-            }
-        }
-    }
-
-    public void setDireccion(int fila, int columna){
+    public synchronized void setDireccion(int fila, int columna){
     direccionFila = fila;
     direccionColumna = columna;
 }
@@ -60,32 +37,31 @@ public class Pacman extends Personaje implements Runnable {
     }
 
 // Getters
-
-    public int getFila() {
+    public synchronized int getFila() {
         return fila;
     }
 
-    public int getColumna() {
+    public synchronized int getColumna() {
         return columna;
     }
 
-    public int getDireccionFila() {
+    public synchronized int getDireccionFila() {
     return direccionFila;
     }
 
-    public int getDireccionColumna() {
+    public synchronized int getDireccionColumna() {
     return direccionColumna;
     }
 
-public void perderVida() {
+public synchronized void perderVida() {
     vidas--;
 }
 
-public int getVidas() {
+public synchronized int getVidas() {
     return vidas;
 }
 
-public void reiniciarPosicion() {
+public synchronized void reiniciarPosicion() {
     fila = filaInicial;
     columna = columnaInicial;
 
@@ -94,12 +70,37 @@ public void reiniciarPosicion() {
 }
 
     @Override
+    public synchronized void mover(){
+        if (laberinto != null && scoreModel != null){
+            int nuevaFila = fila + direccionFila;
+            int nuevaColumna = columna + direccionColumna;
+
+            if (!laberinto.esPared(nuevaFila, nuevaColumna)){
+                fila = nuevaFila;
+                columna = nuevaColumna;
+
+                int celda = laberinto.getCelda(fila, columna);
+            if (celda == Laberinto.PELLET){
+                    laberinto.setCelda(fila, columna, Laberinto.VACIO);
+                    scoreModel.sumarPuntos(10);
+            } else if (celda == Laberinto.CEREZA) {
+                laberinto.setCelda(fila, columna, Laberinto.VACIO);
+                scoreModel.sumarPuntos(100);
+            } else if (celda == Laberinto.NARANJA) {
+                laberinto.setCelda(fila, columna, Laberinto.VACIO);
+                scoreModel.sumarPuntos(120);
+                }
+            }
+        }
+    }
+
+    @Override
     public void run() {
 
         while (vivo) {
 
             if (laberinto != null && scoreModel != null) {
-                mover(laberinto, scoreModel);
+                mover();
             }
 
             try {

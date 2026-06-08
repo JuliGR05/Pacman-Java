@@ -11,7 +11,12 @@ public class ModeloJuego {
     private EstadoJuego estado;
     private int nivelActual = 1;
     private int nivelCompletado;
+    private Thread hiloRojo;
+    private Thread hiloNaranja;
+    private Thread hiloRosado;
+    private Thread hiloPacman;
 
+    //Constructor
     public ModeloJuego() {
         scoreModel = new ScoreModel();
         estado = EstadoJuego.INICIO;
@@ -38,6 +43,7 @@ public class ModeloJuego {
         hiloPacman.start();
     }
 
+    //Métodos 
     public void actualizarJuego() {
         if (estado != EstadoJuego.JUGANDO) return;
 
@@ -76,8 +82,9 @@ public class ModeloJuego {
         verificarColisionFantasma(fantasmaNaranja);
         verificarColisionFantasma(fantasmaRosado);
 
-        if (pacman.getVidas() <= 0) {
-            estado = EstadoJuego.GAME_OVER;
+       if (pacman.getVidas() <= 0) {
+        PersistenciaPuntajes.guardarPuntaje(scoreModel.getPuntos()); 
+        estado = EstadoJuego.GAME_OVER;
         }
     }
 
@@ -121,7 +128,16 @@ public class ModeloJuego {
         fantasmaRojo.detener();
         fantasmaNaranja.detener();
         fantasmaRosado.detener();
+
+        try {
+        hiloPacman.join(500);
+        hiloRojo.join(500);
+        hiloNaranja.join(500);
+        hiloRosado.join(500);
+        } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
     }
+}
 
     public void cargarSiguienteNivel() {
     detenerPersonajes();

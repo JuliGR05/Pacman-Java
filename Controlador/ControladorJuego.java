@@ -10,11 +10,13 @@ public class ControladorJuego implements KeyListener {
     private ModeloJuego modelo;
     private PanelJuego panel;
 
+    //Constructor
     public ControladorJuego(ModeloJuego modelo, PanelJuego panel){
         this.modelo = modelo;
         this.panel = panel;
     }
 
+    //Métodos
     @Override
     public void keyPressed(KeyEvent e){
     int tecla = e.getKeyCode();

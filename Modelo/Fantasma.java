@@ -4,7 +4,7 @@ import java.util.Random;
 public abstract class Fantasma extends Personaje implements Runnable {
 
     protected Laberinto laberinto;
-    protected boolean vivo;
+    protected volatile boolean vivo;
 
     //Constructor
     public Fantasma (int filaInicial, int columnaInicial, Laberinto laberinto){
@@ -18,7 +18,7 @@ public abstract class Fantasma extends Personaje implements Runnable {
     public abstract void mover(); //se mueven los fantasmas
 
     //Para que los fantasmas reaparezcan aleatoriamente después de mor
-    public void respawnAleatorio(Pacman pacman) {
+    public synchronized void respawnAleatorio(Pacman pacman) {
     Random random = new Random();
     int nuevaFila;
     int nuevaColumna;
@@ -47,11 +47,11 @@ public abstract class Fantasma extends Personaje implements Runnable {
         }
     }
 
-    public int getFila() {return fila;}
-    public int getColumna () {return columna;}
+    public synchronized  int getFila() {return fila;}
+    public synchronized  int getColumna () {return columna;}
     public void detener () {vivo = false;}
 
-    protected boolean vulnerable = false;
+    protected volatile boolean vulnerable = false;
     public void setVulnerable(boolean v) {
         vulnerable = v;
     }

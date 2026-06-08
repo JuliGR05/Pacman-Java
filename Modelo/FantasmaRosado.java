@@ -11,7 +11,7 @@ public class FantasmaRosado extends Fantasma {
     }
 
     @Override
-    public void mover() {
+    public synchronized  void mover() {
         int[][] direcciones = {{0,1},{0,-1},{1,0},{-1,0}};
 
          // intentar seguir una dirección de manera lineal

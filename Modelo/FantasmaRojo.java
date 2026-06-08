@@ -13,7 +13,7 @@ public class FantasmaRojo extends Fantasma {
     }
 
     @Override
-    public void mover() {
+    public synchronized void mover() {
         int targetFila = pacman.getFila();
         int targetColumna = pacman.getColumna();
 

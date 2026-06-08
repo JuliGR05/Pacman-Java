@@ -32,10 +32,10 @@ public class ModeloJuego {
         fantasmaNaranja = new FantasmaNaranja(1, 8, laberinto);
         fantasmaRosado = new FantasmaRosado(1, 14, laberinto);
 
-        Thread hiloRojo = new Thread(fantasmaRojo);
-        Thread hiloNaranja = new Thread(fantasmaNaranja);
-        Thread hiloRosado = new Thread(fantasmaRosado);
-        Thread hiloPacman = new Thread(pacman);
+        hiloRojo = new Thread(fantasmaRojo);
+        hiloNaranja = new Thread(fantasmaNaranja);
+        hiloRosado = new Thread(fantasmaRosado);
+        hiloPacman = new Thread(pacman);
 
         hiloRojo.start();
         hiloNaranja.start();
@@ -129,12 +129,12 @@ public class ModeloJuego {
         fantasmaNaranja.detener();
         fantasmaRosado.detener();
 
-        try {
-        hiloPacman.join(500);
-        hiloRojo.join(500);
-        hiloNaranja.join(500);
-        hiloRosado.join(500);
-        } catch (InterruptedException e) {
+    try {
+        if (hiloPacman != null) hiloPacman.join(500); //protegiendo los join
+        if (hiloRojo != null) hiloRojo.join(500);
+        if (hiloNaranja != null) hiloNaranja.join(500);
+        if (hiloRosado != null) hiloRosado.join(500);
+    } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
     }
 }

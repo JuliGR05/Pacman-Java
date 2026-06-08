@@ -11,6 +11,7 @@ public class Laberinto {
 
     private int[][] mapa;
     
+    //Constructor
     public Laberinto(int nivel) {
     if (nivel == 1) {
         mapa = nivel1();
@@ -100,6 +101,7 @@ public class Laberinto {
     };
 }
     
+    //Métodos
     public int[][] getMapa() { return mapa; }
     public int getCelda(int fila, int columna) { return mapa[fila][columna]; }
     public int getFilas() { return mapa.length; }

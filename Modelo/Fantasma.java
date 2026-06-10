@@ -33,35 +33,3 @@ public abstract class Fantasma extends Personaje implements Runnable {
     fila = nuevaFila;
     columna = nuevaColumna;
     }
-
-
-    protected long velocidad = 250; //valor por defecto de la velocidad
-    @Override
-    public void run(){
-        while (vivo) {
-            mover();
-            try {
-                Thread.sleep(velocidad); //velocidad cada fantasma
-            } catch (InterruptedException e){
-                Thread.currentThread().interrupt();
-            }
-        }
-    }
-
-    public void setVelocidad(long velocidad){
-        this.velocidad = velocidad;
-    }
-
-    public synchronized  int getFila() {return fila;}
-    public synchronized  int getColumna () {return columna;}
-    public void detener () {vivo = false;}
-
-    protected volatile boolean vulnerable = false;
-    public void setVulnerable(boolean v) {
-        vulnerable = v;
-    }
-
-    public boolean isVulnerable() {
-        return vulnerable;
-    }
-}

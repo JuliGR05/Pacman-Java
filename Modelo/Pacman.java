@@ -82,15 +82,18 @@ public synchronized void reiniciarPosicion() {
                 columna = nuevaColumna;
 
                 int celda = laberinto.getCelda(fila, columna);
-                if (celda == Laberinto.PELLET){
+                if (celda == Laberinto.PELLET) {
                     laberinto.setCelda(fila, columna, Laberinto.VACIO);
                     scoreModel.sumarPuntos(10);
-            } else if (celda == Laberinto.CEREZA) {
-                laberinto.setCelda(fila, columna, Laberinto.VACIO);
-                scoreModel.sumarPuntos(100);
-            } else if (celda == Laberinto.NARANJA) {
-                laberinto.setCelda(fila, columna, Laberinto.VACIO);
-                scoreModel.sumarPuntos(120);
+                    Sonido.reproducirPellet(); // waka.wav reutilizable
+                } else if (celda == Laberinto.CEREZA) {
+                    laberinto.setCelda(fila, columna, Laberinto.VACIO);
+                    scoreModel.sumarPuntos(100);
+                    Sonido.reproducir("/Recursos/eatghost.wav"); // fruta
+                } else if (celda == Laberinto.NARANJA) {
+                    laberinto.setCelda(fila, columna, Laberinto.VACIO);
+                    scoreModel.sumarPuntos(120);
+                    Sonido.reproducir("/Recursos/eatghost.wav"); // fruta
                 }
             }
         }
@@ -105,6 +108,11 @@ public synchronized void reiniciarPosicion() {
     public void run() {
 
         while (vivo) {
+
+            if (ModeloJuego.pausado) {
+                try { Thread.sleep(50); } catch (InterruptedException e) { break; }
+                continue;
+            }
 
             if (laberinto != null && scoreModel != null) {
                 mover();

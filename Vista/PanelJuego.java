@@ -70,6 +70,8 @@ public class PanelJuego extends JPanel {
             repaint();
         });
         gameLoop.start();
+        modelo.iniciarSonidoMenu(); // Música del menú
+
 
         configurarMenuInicio();
         configurarBotonesNivel();
@@ -98,6 +100,7 @@ public class PanelJuego extends JPanel {
     btnIniciar.setFocusPainted(false);
     btnIniciar.addActionListener(e -> {
         modelo.setEstado(EstadoJuego.JUGANDO);
+        modelo.iniciarSonidoJuego(); // Detiene menú, inicia waka
         btnIniciar.setVisible(false);
         btnSalir.setVisible(false);
         requestFocusInWindow();

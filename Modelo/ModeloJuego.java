@@ -16,12 +16,13 @@ public class ModeloJuego {
     private Thread hiloRosado;
     private Thread hiloPacman;
     private Thread hiloPowerUp;
+    public static volatile boolean pausado = false;
 
     //Constructor
     public ModeloJuego() {
         scoreModel = new ScoreModel();
         estado = EstadoJuego.INICIO;
-        inicializarNivel(1); // arranca nivel 1 
+        inicializarNivel(1);
     }
 
     private void inicializarNivel(int nivel) {
@@ -43,7 +44,6 @@ public class ModeloJuego {
         hiloRosado.start();
         hiloPacman.start();
 
-        //velocidad aumenta por nivel 
         long velocidadFantasmas;
         long velocidadPacman;
 
@@ -64,7 +64,6 @@ public class ModeloJuego {
         pacman.setVelocidad(velocidadPacman);
     }
 
-    //Métodos 
     public void actualizarJuego() {
         if (estado != EstadoJuego.JUGANDO) return;
 
@@ -81,8 +80,7 @@ public class ModeloJuego {
         }
     }
 
-    private void activarPowerUp() { //fantasmas se vuelven vulnerables
-        
+    private void activarPowerUp() {
         if (hiloPowerUp != null && hiloPowerUp.isAlive()){
             hiloPowerUp.interrupt();
         }
@@ -91,15 +89,21 @@ public class ModeloJuego {
         fantasmaNaranja.setVulnerable(true);
         fantasmaRosado.setVulnerable(true);
 
+        // Sonido power-up, suena una sola vez
+        Sonido.reproducir("/Recursos/powerup.wav");
+
         hiloPowerUp = new Thread(() -> {
             try {
-            Thread.sleep (8000); //8 segundos que dura la vulnerabilidad   
+                Thread.sleep(8000);
             } catch (InterruptedException e) {
                 return;
             }
-        fantasmaRojo.setVulnerable(false);
-        fantasmaNaranja.setVulnerable(false);
-        fantasmaRosado.setVulnerable(false);
+            fantasmaRojo.setVulnerable(false);
+            fantasmaNaranja.setVulnerable(false);
+            fantasmaRosado.setVulnerable(false);
+
+            // Termina el powerup
+            Sonido.detener("powerup");
         });
         hiloPowerUp.start();
     }
@@ -109,57 +113,74 @@ public class ModeloJuego {
         verificarColisionFantasma(fantasmaNaranja);
         verificarColisionFantasma(fantasmaRosado);
 
-       if (pacman.getVidas() <= 0) {
-        PersistenciaPuntajes.guardarPuntaje(scoreModel.getPuntos()); 
-        estado = EstadoJuego.GAME_OVER;
+        if (pacman.getVidas() <= 0) {
+            PersistenciaPuntajes.guardarPuntaje(scoreModel.getPuntos());
+            estado = EstadoJuego.GAME_OVER;
+            // Sonido game over
+            Sonido.detenerTodo();
+            Sonido.reproducir("/Recursos/gameover.wav");
         }
     }
 
     public void verificarColisionEnMovimiento(int filaPacman, int columnaPacman) {
-    verificarColisionFantasma(fantasmaRojo);
-    verificarColisionFantasma(fantasmaNaranja);
-    verificarColisionFantasma(fantasmaRosado);
+        verificarColisionFantasma(fantasmaRojo);
+        verificarColisionFantasma(fantasmaNaranja);
+        verificarColisionFantasma(fantasmaRosado);
     }
 
     private void verificarColisionFantasma(Fantasma fantasma) {
         boolean colision = Math.abs(pacman.getFila() - fantasma.getFila()) <= 0
-        && Math.abs(pacman.getColumna() - fantasma.getColumna()) <= 0; 
+        && Math.abs(pacman.getColumna() - fantasma.getColumna()) <= 0;
 
         if (colision) {
             if (fantasma.isVulnerable()) {
                 scoreModel.sumarPuntos(200);
                 fantasma.setVulnerable(false);
                 fantasma.respawnAleatorio(pacman);
+                // Sonido comer fantasma (bajito, 20% de volumen)
+                Sonido.reproducirConVolumen("/Recursos/eatghost.wav", 0.2f);
             } else if (!pacman.isInvulnerable()) {
                 pacman.perderVida();
                 pacman.reiniciarPosicion();
                 pacman.activarInvulnerabilidad();
+                // Sonido muerte / perder vida
+                Sonido.detenerTodo();
+                Sonido.reproducir("/Recursos/death.wav");
+
             }
         }
     }
 
-    public boolean hayFantasmaEn(int fila, int columna) { //para momento exacto en que hay colisión
-    return (fantasmaRojo.getFila() == fila && fantasmaRojo.getColumna() == columna)
-        || (fantasmaNaranja.getFila() == fila && fantasmaNaranja.getColumna() == columna)
-        || (fantasmaRosado.getFila() == fila && fantasmaRosado.getColumna() == columna);
+    public boolean hayFantasmaEn(int fila, int columna) {
+        return (fantasmaRojo.getFila() == fila && fantasmaRojo.getColumna() == columna)
+            || (fantasmaNaranja.getFila() == fila && fantasmaNaranja.getColumna() == columna)
+            || (fantasmaRosado.getFila() == fila && fantasmaRosado.getColumna() == columna);
     }
 
     private void subirNivel() {
         nivelCompletado = nivelActual;
+        Sonido.detenerTodo();
         if (nivelActual == 3) {
             estado = EstadoJuego.VICTORIA;
+            // Sonido victoria
+            Sonido.reproducir("/Recursos/victory.wav");
             return;
         }
         estado = EstadoJuego.SIGUIENTE_NIVEL;
+        // Sonido nivel completado
+        Sonido.reproducir("/Recursos/levelup.wav");
     }
 
     public void reiniciar() {
         detenerPersonajes();
+        Sonido.detenerTodo();
         nivelActual = 1;
         nivelCompletado = 0;
         scoreModel.reiniciar();
         estado = EstadoJuego.INICIO;
         inicializarNivel(1);
+        // Volver al menú con música
+        Sonido.reproducirLoop("menu", "/Recursos/menu.wav");
     }
 
     private void detenerPersonajes() {
@@ -168,21 +189,33 @@ public class ModeloJuego {
         fantasmaNaranja.detener();
         fantasmaRosado.detener();
 
-    try {
-        if (hiloPacman != null) hiloPacman.join(500); //protegiendo los join
-        if (hiloRojo != null) hiloRojo.join(500);
-        if (hiloNaranja != null) hiloNaranja.join(500);
-        if (hiloRosado != null) hiloRosado.join(500);
-    } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
+        try {
+            if (hiloPacman != null) hiloPacman.join(500);
+            if (hiloRojo != null) hiloRojo.join(500);
+            if (hiloNaranja != null) hiloNaranja.join(500);
+            if (hiloRosado != null) hiloRosado.join(500);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
-}
 
     public void cargarSiguienteNivel() {
-    detenerPersonajes();
-    nivelActual++;
-    inicializarNivel(nivelActual);
-    estado = EstadoJuego.JUGANDO;
+        detenerPersonajes();
+        Sonido.detenerTodo();
+        nivelActual++;
+        inicializarNivel(nivelActual);
+        estado = EstadoJuego.JUGANDO;
+
+    }
+
+    // Métodos para iniciar/detener sonidos de juego desde la vista
+    public void iniciarSonidoJuego() {
+        Sonido.detener("menu");
+    }
+
+    public void iniciarSonidoMenu() {
+        Sonido.detenerTodo();
+        Sonido.reproducirLoop("menu", "/Recursos/menu.wav");
     }
 
     // Getters
@@ -193,12 +226,15 @@ public class ModeloJuego {
     public FantasmaRosado getFantasmaRosado() { return fantasmaRosado; }
     public ScoreModel getScoreModel() { return scoreModel; }
     public EstadoJuego getEstado() { return estado; }
-    public void setEstado(EstadoJuego estado) { this.estado = estado; }
-
-    public int getNivelActual(){
-        return nivelActual;
+    public void setEstado(EstadoJuego estado) {
+        this.estado = estado;
+        if (estado == EstadoJuego.PAUSA) {
+            pausado = true;
+        } else if (estado == EstadoJuego.JUGANDO) {
+            pausado = false;
+        }
     }
-    public int getNivelCompletado() {
-    return nivelCompletado;
-}
+
+    public int getNivelActual(){ return nivelActual; }
+    public int getNivelCompletado() { return nivelCompletado; }
 }
